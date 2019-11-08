@@ -19,6 +19,10 @@ router.get('/auth/redirect',
     authController.redirect
 )
 
+router.get('/people',
+    authController.authenticate,
+)
+
 router.use((err, req, res, next) => {
     console.error(err);
     if (err.status < 500)

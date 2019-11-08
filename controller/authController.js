@@ -1,6 +1,7 @@
 const uuid = require('uuid/v1')
 const axios = require('axios')
 const dataService = require('../service/dataService')
+const peopleService = require('../service/googlePeopleService')
 const clientId = require('../client_id.json').web
 const scope = 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
 var state;
@@ -24,12 +25,18 @@ exports.redirect = async (req, res, next) => {
             'redirect_uri': clientId.redirect_uris[1],
             'grant_type': 'authorization_code'
         })
-        console.log("=== token_res ", token_res)
-        token_res.state = state;
-        res.status(200).json(token_res)
+        console.log("=== token_res ", token_res.data)
+        token_res.data.state = state;
+        res.redirect('/people')
         // await dataService.addCredentials(token_res);
     }
     catch(err){
         next(err)
     }
+}
+
+exports.authenticate = (req, res, next) => {
+    let info = peopleService.getInfo()
+    res.status(200).send(info)
+
 }
