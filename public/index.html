@@ -17,12 +17,16 @@
                 <h1>OAuth2.0 Demo</h1>
             </div>
         </header>
-        <main class="center">
+        <main id="main" class="center">
             <div>
                 <!-- `greet` is the name of a method defined below -->
-                <button id="auth-btn" v-on:click="auth">Login to Google Account</button>
+                <a id="auth-btn" v-on:click="auth" href="/" target="_blank">Get my info from Google</a>
+            </div>
+            <div id="backdrop"class="hidden center">
+                <h1>Refresh the browser window<br>after authorizing this app</h1>
             </div>
         </main>
     </body>
+    
 
 </html>
