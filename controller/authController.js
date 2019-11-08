@@ -1,22 +1,35 @@
 const uuid = require('uuid/v1')
 const axios = require('axios')
 const dataService = require('../service/dataService')
-const peopleService = require('../service/googlePeopleService')
+const peopleController = require('../controller/peopleController')
 const clientId = require('../client_id.json').web
 const scope = 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
 var state;
-
-exports.authorize = async (req, res, next) => {
-    state = uuid();
-    let oauth_uri = `${clientId.auth_uri}?client_id=${clientId.client_id}&redirect_uri=${clientId.redirect_uris[1]}&scope=${scope}&response_type=code&state=${state}`
-    
-    res.status(200).json({oauth_uri: oauth_uri});
+exports.check = async (req, res, next) => {
+    console.log('GET /people')
+    console.log("Checking if user has authorized google")        
+    if(!peopleController.getAccessToken()){
+        
+        console.log("Access token not found")
+        state = uuid();
+        let oauth_uri = `${clientId.auth_uri}?client_id=${clientId.client_id}&redirect_uri=${clientId.redirect_uris[1]}&scope=${scope}&response_type=code&state=${state}`
+        
+        console.log("Sending oauth uri: ", oauth_uri)
+        console.log("Presenting user with google oauth link")
+        res.status(200).render('auth', { oauth_uri: oauth_uri });
+    }
+    else{
+        console.log('Found access_token')
+        next()
+    }
 }
 
 exports.redirect = async (req, res, next) => {
+    console.log('GET /auth/redirect')
     let query = req.query
     let token_uri = `${clientId.token_uri}?code=${query.code}&client_id=${clientId.client_id}&client_secret=${clientId.client_secret}&redirect_uri=${clientId.redirect_uris[1]}&grant_type=authorization_code`
-    console.log(token_uri);
+    console.log("User authorized google")
+    console.log("Making access_token request to: ", token_uri)
     try {
         let token_res = await axios.post(clientId.token_uri, {
             'code': query.code,
@@ -25,18 +38,13 @@ exports.redirect = async (req, res, next) => {
             'redirect_uri': clientId.redirect_uris[1],
             'grant_type': 'authorization_code'
         })
-        console.log("=== token_res ", token_res.data)
+        console.log(token_res.data)
         token_res.data.state = state;
-        res.redirect('/people')
-        // await dataService.addCredentials(token_res);
+        console.log('setting access token')
+        peopleController.setAccessToken(token_res.data);
+        res.redirect('/people/me')
     }
     catch(err){
         next(err)
     }
-}
-
-exports.authenticate = (req, res, next) => {
-    let info = peopleService.getInfo()
-    res.status(200).send(info)
-
 }

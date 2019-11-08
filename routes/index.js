@@ -2,25 +2,22 @@
 
 const express = require('express');
 const router = express.Router();
-const authController = require('../controller/authController')
+const authController = require('../controller/authController');
+const peopleController = require('../controller/peopleController');
 const { json } = require('body-parser');
 const jsonParser = json({ type: 'application/json' });
 
-// router.post('/boats',
-//     jsonParser,
-//     boatController.validate('createBoat'),
-//     boatController.createBoat
-// );
-
-router.get('/auth',
-    authController.authorize,
+router.use('/people', 
+    authController.check,
+    peopleController.getInfo
 );
+
+router.get('/', (req, res, next) => {
+    res.redirect('/people')
+})
+
 router.get('/auth/redirect',
     authController.redirect
-)
-
-router.get('/people',
-    authController.authenticate,
 )
 
 router.use((err, req, res, next) => {
