@@ -4,7 +4,7 @@ const peopleController = require('../controller/peopleController')
 const clientId = require('../client_id.json').web
 const scope = 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
 
-const redirect_uri = (global.env_type === 'local') ? clientId.redirect_uris[1] : clientId.redirect_uris[0] 
+const redirect_uri = (process.env.NODE_ENV === 'dev') ? clientId.redirect_uris[1] : clientId.redirect_uris[0] 
 var state;
 
 exports.check = async (req, res, next) => {
@@ -43,7 +43,7 @@ exports.redirect = async (req, res, next) => {
         token_res.data.state = state;
         console.log('setting access token')
         peopleController.setAccessToken(token_res.data);
-        res.redirect('/people/me')
+        res.redirect('/people')
     }
     catch(err){
         next(err)

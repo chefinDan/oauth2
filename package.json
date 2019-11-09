@@ -4,8 +4,8 @@
   "description": "From scratch implementation of the OAuth2.0 server flow",
   "main": "start.js",
   "scripts": {
-    "start": "node start.js gcp",
-    "dev": "node start.js local",
+    "start": "NODE_ENV=gcp node start.js",
+    "dev": "NODE_ENV=dev node start.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
